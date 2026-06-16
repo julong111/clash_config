@@ -1,0 +1,181 @@
+# Profile Enhancement Merge Template for Clash Verge
+
+profile:
+  store-selected: true
+
+proxy-groups:
+  - name: 代理
+    type: select
+    proxies:
+      - 我的规则
+      - 所有节点
+      - DIRECT
+  - name: 我的规则
+    include-all: true
+    filter: "(?i)🌟|新加坡|坡|狮城|SG|Singapore|美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States|France|法国|Paris|Netherlands|GB"
+    type: select
+  - name: 所有节点
+    include-all: true
+    type: select
+
+rule-providers:
+  MyDirect:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyDirect.list
+    path: ./rules/MyDirect.yaml
+  MyProxy:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyProxy.list
+    path: ./rules/MyProxy.list
+  LocalAreaNetwork:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/LocalAreaNetwork.list
+    path: ./rules/LocalAreaNetwork.yaml
+  BanAD:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/BanAD.list
+    path: ./rules/BanAD.yaml
+  BanProgramAD:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/BanProgramAD.list
+    path: ./rules/BanProgramAD.yaml
+  GoogleCN:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/GoogleCN.list
+    path: ./rules/GoogleCN.yaml
+  Bing:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Bing.list
+    path: ./rules/Bing.yaml
+  Microsoft:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Microsoft.list
+    path: ./rules/Microsoft.yaml
+  OneDrive:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/OneDrive.list
+    path: ./rules/OneDrive.yaml
+  Apple:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Apple.list
+    path: ./rules/Apple.yaml
+  ProxyMedia:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ProxyMedia.list
+    path: ./rules/ProxyMedia.yaml
+  ChinaMedia:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaMedia.list
+    path: ./rules/ChinaMedia.yaml
+  Telegram:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Telegram.list
+    path: ./rules/Telegram.yaml
+  ProxyLite:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ProxyLite.list
+    path: ./rules/ProxyLite.yaml
+  ChinaDomain:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaDomain.list
+    path: ./rules/ChinaDomain.yaml
+  ChinaCompanyIp:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaCompanyIp.list
+    path: ./rules/ChinaCompanyIp.yaml
+  ChinaIp:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaIp.list
+    path: ./rules/ChinaIp.yaml
+
+rules:
+  # ========================================
+  # 1. 自定义规则（最高优先级）
+  # ========================================
+  - RULE-SET,MyDirect,DIRECT
+  - RULE-SET,MyProxy,代理
+
+  # ========================================
+  # 2. 局域网和特殊地址直连（防代理冲突）
+  # ========================================
+  - GEOSITE,private,DIRECT
+  - GEOIP,private,DIRECT,no-resolve
+  - RULE-SET,LocalAreaNetwork,DIRECT
+
+  # ========================================
+  # 3. 广告拦截
+  # ========================================
+  - GEOSITE,category-ads-all,REJECT
+  - RULE-SET,BanAD,REJECT
+  - RULE-SET,BanProgramAD,REJECT
+
+  # ========================================
+  # 4. 必须走代理的特定服务（高优先级）
+  # ========================================
+  - GEOSITE,google,代理
+  - GEOSITE,youtube,代理
+  - GEOSITE,telegram,代理
+  - GEOIP,telegram,代理
+  - RULE-SET,Telegram,代理
+  - GEOSITE,netflix,代理
+  - GEOSITE,openai,代理
+
+  # ========================================
+  # 5. 被墙网站列表
+  # ========================================
+  - GEOSITE,gfw,代理
+
+  # ========================================
+  # 6. 国外媒体（流媒体等）
+  # ========================================
+  - RULE-SET,ProxyMedia,代理
+  - RULE-SET,ChinaMedia,DIRECT
+
+  # ========================================
+  # 7. 国内服务直连（特定品牌/平台）
+  # ========================================
+  - GEOSITE,microsoft@cn,DIRECT
+  - GEOSITE,apple-cn,DIRECT
+  - GEOSITE,steam@cn,DIRECT
+  - GEOSITE,bilibili,DIRECT
+  - RULE-SET,GoogleCN,DIRECT
+  - RULE-SET,Microsoft,DIRECT
+  - RULE-SET,Apple,DIRECT
+  - RULE-SET,Bing,DIRECT
+  - RULE-SET,OneDrive,DIRECT
+
+  # ========================================
+  # 8. 国内域名和IP直连（兜底）
+  # ========================================
+  - GEOSITE,cn,DIRECT
+  - GEOIP,CN,DIRECT
+  - RULE-SET,ChinaDomain,DIRECT
+  - RULE-SET,ChinaCompanyIp,DIRECT
+  - RULE-SET,ChinaIp,DIRECT
+
+  # ========================================
+  # 9. 剩余流量走代理（白名单模式）
+  # ========================================
+  - RULE-SET,ProxyLite,代理
+
+  # ========================================
+  # 10. 最终兜底：所有其他流量直连
+  # ========================================
+  - MATCH,DIRECT

@@ -12,6 +12,9 @@ proxy-groups:
       - DIRECT
   - name: 我的规则
     include-all: true
+    # 1. 优先排除：名字里包含 http 或 socks 关键字的节点（不区分大小写）
+    exclude-filter: "(?i)http|socks|socks5|sock"
+    # 2. 正常筛选：在剩下的节点里过滤出你想要的地区
     filter: "(?i)美国|荷兰|法国|日本|新加坡|澳大利亚|台湾|韩国|日本"
     type: select
   - name: 所有节点

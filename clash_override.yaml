@@ -114,75 +114,66 @@ rule-providers:
 
 rules:
   # ========================================
-  # 1. 自定义规则（最高优先级）
-  # ========================================
-  - RULE-SET,MyDirect,DIRECT
-  - RULE-SET,MyProxy,代理
-
-  # ========================================
-  # 2. 局域网和特殊地址直连（防代理冲突）
+  # 1. 绝对防御层：局域网与特殊地址（防代理冲突，必须最快通过）
   # ========================================
   - GEOSITE,private,DIRECT
   - GEOIP,private,DIRECT,no-resolve
   - RULE-SET,LocalAreaNetwork,DIRECT
 
   # ========================================
-  # 3. 广告拦截
+  # 2. 拦截层：广告与追踪（放在最上层，避免漏过广告，节省 CPU 算力）
   # ========================================
   - GEOSITE,category-ads-all,REJECT
   - RULE-SET,BanAD,REJECT
   - RULE-SET,BanProgramAD,REJECT
 
   # ========================================
-  # 4. 必须走代理的特定服务（高优先级）
+  # 3. 用户最高意志：自定义覆盖规则（手动调试与临时修复）
   # ========================================
-  - GEOSITE,google,代理
+  - RULE-SET,MyProxy,代理
+  - RULE-SET,MyDirect,DIRECT
+
+  # ========================================
+  # 4. 专项分流修正：解决大厂“直连/代理”冲突（关键逻辑：先精准直连，后大类代理）
+  # ========================================
+  # ---- Google 修正 ----
+  - RULE-SET,GoogleCN,DIRECT          # 精准提取国内 Google 走直连
+  - GEOSITE,google,代理               # 剩余的 Google 服务全走代理
   - GEOSITE,youtube,代理
+
+  # ---- 苹果/微软/Steam 官方国内 CDN 修正 ----
+  - GEOSITE,apple-cn,DIRECT           # 确保 App Store 更新走国内加速
+  - GEOSITE,microsoft@cn,DIRECT       # 确保微软国内 CDN 走直连
+  - GEOSITE,steam@cn,DIRECT           # 确保 Steam 游戏下载满速直连
+
+  # ========================================
+  # 5. 常规代理规则（高优先级海外服务与被墙列表）
+  # ========================================
   - GEOSITE,telegram,代理
-  - GEOIP,telegram,代理
+  - GEOIP,telegram,代理,no-resolve
   - RULE-SET,Telegram,代理
   - GEOSITE,netflix,代理
   - GEOSITE,openai,代理
+  - RULE-SET,ProxyMedia,代理          # 国外流媒体
+  - GEOSITE,gfw,代理                  # 主力被墙域名列表
 
   # ========================================
-  # 5. 被墙网站列表
+  # 6. 高频国内服务直连（无需依赖 IP 解析的常用域名）
   # ========================================
-  - GEOSITE,gfw,代理
+  - GEOSITE,bilibili,DIRECT           # B站特化（防部分国际版混淆）
 
   # ========================================
-  # 6. 国外媒体（流媒体等）
+  # 7. 大兜底分流（利用全量数据库进行最终清算，实现白名单机制）
   # ========================================
-  - RULE-SET,ProxyMedia,代理
-  - RULE-SET,ChinaMedia,DIRECT
-
-  # ========================================
-  # 7. 国内服务直连（特定品牌/平台）
-  # ========================================
-  - GEOSITE,microsoft@cn,DIRECT
-  - GEOSITE,apple-cn,DIRECT
-  - GEOSITE,steam@cn,DIRECT
-  - GEOSITE,bilibili,DIRECT
-  - RULE-SET,GoogleCN,DIRECT
-  - RULE-SET,Microsoft,DIRECT
-  - RULE-SET,Apple,DIRECT
-  - RULE-SET,Bing,DIRECT
-  - RULE-SET,OneDrive,DIRECT
-
-  # ========================================
-  # 8. 国内域名和IP直连（兜底）
-  # ========================================
+  # ---- 国内域名、IP 大范围直连（包含国内媒体、各种小网站） ----
   - GEOSITE,cn,DIRECT
-  - GEOIP,CN,DIRECT
+  - GEOIP,CN,DIRECT,no-resolve        # 防 DNS 泄露，未命中域名的原生 IP 走此条
   - RULE-SET,ChinaDomain,DIRECT
   - RULE-SET,ChinaCompanyIp,DIRECT
   - RULE-SET,ChinaIp,DIRECT
 
-  # ========================================
-  # 9. 剩余流量走代理（白名单模式）
-  # ========================================
+  # ---- 剩余所有未知的国外流量走代理 ----
   - RULE-SET,ProxyLite,代理
 
-  # ========================================
-  # 10. 最终兜底：所有其他流量直连
-  # ========================================
+  # 最终防漏兜底：极端情况下其余所有流量全部直连
   - MATCH,DIRECT

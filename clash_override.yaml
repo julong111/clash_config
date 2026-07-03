@@ -17,11 +17,11 @@ proxy-groups:
     # 2. 正常筛选：在剩下的节点里过滤出你想要的地区
     filter: "(?i)美国|荷兰|法国|日本|新加坡|澳大利亚|台湾|韩国|日本"
     type: select
-  - name: 所有节点-排除无效
+  - name: 所有节点
     include-all: true
     exclude-filter: "(?i)http|socks|socks5|sock"
     type: select
-  - name: 所有节点
+  - name: 原始所有节点
     include-all: true
     type: select
 

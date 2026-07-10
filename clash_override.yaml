@@ -26,6 +26,11 @@ proxy-groups:
     type: select
 
 rule-providers:
+  MyReject:
+    type: http
+    behavior: classical
+    url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyReject.list
+    path: ./rules/MyReject.yaml
   MyDirect:
     type: http
     behavior: classical
@@ -132,6 +137,7 @@ rules:
   # ========================================
   - RULE-SET,MyProxy,代理
   - RULE-SET,MyDirect,DIRECT
+  - RULE-SET,MyReject,REJECT
 
   # ========================================
   # 4. 专项分流修正：解决大厂“直连/代理”冲突（关键逻辑：先精准直连，后大类代理）

@@ -1,8 +1,11 @@
-# Profile Enhancement Merge Template for Clash Verge
+# Profile Enhancement Merge Template for Clash Verge Rev (Mihomo Core)
 
 profile:
   store-selected: true
 
+# ==============================================================================
+# 1. 代理组定义
+# ==============================================================================
 proxy-groups:
   - name: 代理
     type: select
@@ -12,10 +15,10 @@ proxy-groups:
       - DIRECT
   - name: 我的规则
     include-all: true
-    # 1. 优先排除：名字里包含 http 或 socks 关键字的节点（不区分大小写）
+    # 优先排除名字里包含 http / socks / sock 关键字的节点
     exclude-filter: "(?i)http|socks|socks5|sock"
-    # 2. 正常筛选：在剩下的节点里过滤出你想要的地区
-    filter: "(?i)美国|荷兰|法国|日本|新加坡|澳大利亚|台湾|香港|韩国|日本|奥地利|德国|US|GB|DE|TW|HK|KR|JP|ID|SG|ripao"
+    # 过滤主流常用地区节点
+    filter: "(?i)美国|荷兰|法国|日本|新加坡|澳大利亚|台湾|香港|韩国|奥地利|德国|US|GB|DE|TW|HK|KR|JP|ID|SG|ripao"
     type: select
   - name: 所有节点
     include-all: true
@@ -25,161 +28,136 @@ proxy-groups:
     include-all: true
     type: select
 
+# ==============================================================================
+# 2. 规则集定义 (Rule Providers)
+# 说明：个人 .list 文件显式加上 format: text，避免 must have payload 报错
+# 官方标准规则直接使用 mrs 二进制格式，实现毫秒级加载
+# ==============================================================================
 rule-providers:
+  # ---- 用户自定义个人规则库 ----
   MyReject:
     type: http
     behavior: classical
+    format: text
     url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyReject.list
-    path: ./rules/MyReject.yaml
+    path: ./rules/MyReject.list
+    interval: 86400
   MyDirect:
     type: http
     behavior: classical
+    format: text
     url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyDirect.list
-    path: ./rules/MyDirect.yaml
+    path: ./rules/MyDirect.list
+    interval: 86400
   MyProxy:
     type: http
     behavior: classical
+    format: text
     url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyProxy.list
-    path: ./rules/MyProxy.yaml
-  LocalAreaNetwork:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/LocalAreaNetwork.list
-    path: ./rules/LocalAreaNetwork.yaml
-  BanAD:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/BanAD.list
-    path: ./rules/BanAD.yaml
-  BanProgramAD:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/BanProgramAD.list
-    path: ./rules/BanProgramAD.yaml
-  GoogleCN:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/GoogleCN.list
-    path: ./rules/GoogleCN.yaml
-  Bing:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Bing.list
-    path: ./rules/Bing.yaml
-  Microsoft:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Microsoft.list
-    path: ./rules/Microsoft.yaml
-  OneDrive:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/OneDrive.list
-    path: ./rules/OneDrive.yaml
-  Apple:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Apple.list
-    path: ./rules/Apple.yaml
-  ProxyMedia:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ProxyMedia.list
-    path: ./rules/ProxyMedia.yaml
-  ChinaMedia:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaMedia.list
-    path: ./rules/ChinaMedia.yaml
-  Telegram:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Telegram.list
-    path: ./rules/Telegram.yaml
-  ProxyLite:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ProxyLite.list
-    path: ./rules/ProxyLite.yaml
-  ChinaDomain:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaDomain.list
-    path: ./rules/ChinaDomain.yaml
-  ChinaCompanyIp:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaCompanyIp.list
-    path: ./rules/ChinaCompanyIp.yaml
-  ChinaIp:
-    type: http
-    behavior: classical
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/ChinaIp.list
-    path: ./rules/ChinaIp.yaml
+    path: ./rules/MyProxy.list
+    interval: 86400
 
+  # ---- MetaCubeX / 全量 MRS 顶级规则集 ----
+  ads-all:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta-rules-dat/geo/geosite/category-ads-all.mrs
+    path: ./rules/ads-all.mrs
+    interval: 86400
+  ai-services:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta-rules-dat/geo/geosite/category-ai-chat-us.mrs
+    path: ./rules/ai-services.mrs
+    interval: 86400
+
+# ==============================================================================
+# 3. 完全分流规则列表 (Rules)
+# 从上至下严格按优先级进行匹配过滤
+# ==============================================================================
 rules:
-  # ========================================
-  # 1. 绝对防御层：局域网与特殊地址（防代理冲突，必须最快通过）
-  # ========================================
+  # ========================================================
+  # 第 1 层：绝对防御与本地/BT特化（最优先，免 DNS 延迟）
+  # ========================================================
   - GEOSITE,private,DIRECT
   - GEOIP,private,DIRECT,no-resolve
-  - RULE-SET,LocalAreaNetwork,DIRECT
+  # 利用新数据库的 tracker 标签：BT/PT 种子下载 Tracker 服务器强制直连（省流量/防吸血）
+  - GEOSITE,tracker,DIRECT
 
-  # ========================================
-  # 2. 拦截层：广告与追踪（放在最上层，避免漏过广告，节省 CPU 算力）
-  # ========================================
+  # ========================================================
+  # 第 2 层：广告、恶心追踪与拦截
+  # ========================================================
+  - RULE-SET,MyReject,REJECT
+  - RULE-SET,ads-all,REJECT
   - GEOSITE,category-ads-all,REJECT
-  - RULE-SET,BanAD,REJECT
-  - RULE-SET,BanProgramAD,REJECT
 
-  # ========================================
-  # 3. 用户最高意志：自定义覆盖规则（手动调试与临时修复）
-  # ========================================
+  # ========================================================
+  # 第 3 层：用户最高意志（手动调试与临时修复）
+  # ========================================================
   - RULE-SET,MyProxy,代理
   - RULE-SET,MyDirect,DIRECT
-  - RULE-SET,MyReject,REJECT
 
-  # ========================================
-  # 4. 专项分流修正：解决大厂“直连/代理”冲突（关键逻辑：先精准直连，后大类代理）
-  # ========================================
-  # ---- Google 修正 ----
-  - RULE-SET,GoogleCN,DIRECT          # 精准提取国内 Google 走直连
-  - GEOSITE,google,代理               # 剩余的 Google 服务全走代理
-  - GEOSITE,youtube,代理
+  # ========================================================
+  # 第 4 层：高频/前沿专有服务分流 (AI、电报、流媒体、开发)
+  # ========================================================
+  # ---- AI 人工智能服务 (OpenAI, Claude, Gemini, Midjourney 等) ----
+  - RULE-SET,ai-services,代理
+  - GEOSITE,openai,代理
 
-  # ---- 苹果/微软/Steam 官方国内 CDN 修正 ----
-  - GEOSITE,apple-cn,DIRECT           # 确保 App Store 更新走国内加速
-  - GEOSITE,microsoft@cn,DIRECT       # 确保微软国内 CDN 走直连
-  - GEOSITE,steam@cn,DIRECT           # 确保 Steam 游戏下载满速直连
-
-  # ========================================
-  # 5. 常规代理规则（高优先级海外服务与被墙列表）
-  # ========================================
+  # ---- Telegram 电报 (域名 + 数据库专属 Telegram IP 段双重防漏) ----
   - GEOSITE,telegram,代理
   - GEOIP,telegram,代理,no-resolve
-  - RULE-SET,Telegram,代理
+
+  # ---- 开发者 / GitHub 专项 ----
+  - GEOSITE,github,代理
+  - GEOSITE,gitlab,代理
+
+  # ---- 国外主流影音流媒体 ----
+  - GEOSITE,youtube,代理
   - GEOSITE,netflix,代理
-  - GEOSITE,openai,代理
-  - RULE-SET,ProxyMedia,代理          # 国外流媒体
-  - GEOSITE,gfw,代理                  # 主力被墙域名列表
+  - GEOSITE,disney,代理
+  - GEOSITE,biliintl,代理             # 利用新数据库：哔哩哔哩海外/国际版走代理
 
-  # ========================================
-  # 6. 高频国内服务直连（无需依赖 IP 解析的常用域名）
-  # ========================================
-  - GEOSITE,bilibili,DIRECT           # B站特化（防部分国际版混淆）
+  # ========================================================
+  # 第 5 层：大厂 CDN 修正与国内外精细分割
+  # ========================================================
+  # ---- 谷歌服务分割 ----
+  - GEOSITE,google@cn,DIRECT          # 谷歌国内 CDN / 翻译 / 地图直连
+  - GEOIP,google,代理,no-resolve      # 利用新数据库：谷歌海外 IP 走代理
+  - GEOSITE,google,代理               # 剩余谷歌海外服务走代理
 
-  # ========================================
-  # 7. 大兜底分流（利用全量数据库进行最终清算，实现白名单机制）
-  # ========================================
-  # ---- 国内域名、IP 大范围直连（包含国内媒体、各种小网站） ----
-  - GEOSITE,cn,DIRECT
-  - GEOIP,CN,DIRECT,no-resolve        # 防 DNS 泄露，未命中域名的原生 IP 走此条
-  - RULE-SET,ChinaDomain,DIRECT
-  - RULE-SET,ChinaCompanyIp,DIRECT
-  - RULE-SET,ChinaIp,DIRECT
+  # ---- 苹果服务分割 ----
+  - GEOSITE,apple-cn,DIRECT           # Apple 国内 CDN (App Store / 系统更新直连加速)
+  - GEOIP,apple,DIRECT,no-resolve     # 利用新数据库：Apple 国内 IP 直连
+  - GEOSITE,apple,代理                # 苹果海外服务 (Apple TV+ / Private Relay 等) 走代理
 
-  # ---- 剩余所有未知的国外流量走代理 ----
-  - RULE-SET,ProxyLite,代理
+  # ---- 微软服务分割 ----
+  - GEOSITE,onedrive,代理             # 利用新数据库：OneDrive 存储走代理保证速度
+  - GEOSITE,microsoft@cn,DIRECT       # 微软国内服务直连
+  - GEOSITE,microsoft,代理            # 微软海外服务走代理
 
-  # 最终防漏兜底：极端情况下其余所有流量全部直连
-  - MATCH,DIRECT
+  # ---- 游戏服务分割 ----
+  - GEOSITE,steam@cn,DIRECT           # 利用新数据库：Steam 国内 CDN 下载满速直连
+  - GEOSITE,steam,代理                # Steam 商店 / 社区走代理
+
+  # ---- 国内特定大厂 IP / CDN 增强直连 ----
+  - GEOSITE,bilibili,DIRECT
+  - GEOIP,bilibili,DIRECT,no-resolve  # 利用新数据库：Bilibili 视频流 IP 强制直连
+  - GEOIP,cloudflare,代理,no-resolve  # 利用新数据库：Cloudflare 节点强制走代理（防止被墙连接超时）
+
+  # ========================================================
+  # 第 6 层：全量 GFW 与国内白名单兜底
+  # ========================================================
+  # ---- 优先匹配 GFW 明确被封锁的域名 ----
+  - GEOSITE,gfw,代理
+
+  # ---- 国内域名与 IP 全量直连 ----
+  - GEOSITE,cn,DIRECT                 # 利用新数据库：采用 ChinaMax_Domain 全量国内域名
+  - GEOIP,CN,DIRECT,no-resolve        # 全量国内 IP 直连 (no-resolve 避免 DNS 泄露)
+
+  # ========================================================
+  # 第 7 层：未命中流量兜底清算
+  # ========================================================
+  - MATCH,代理                        # 剩余所有未知的冷门海外流量统一走代理

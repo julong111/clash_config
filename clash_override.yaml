@@ -11,6 +11,7 @@ proxy-groups:
     type: select
     proxies:
       - 我的规则
+      - 自定义节点
       - 所有节点
       - DIRECT
   - name: 我的规则
@@ -20,11 +21,11 @@ proxy-groups:
     # 过滤主流常用地区节点
     filter: "(?i)美国|荷兰|法国|日本|新加坡|澳大利亚|台湾|香港|韩国|奥地利|德国|US|GB|DE|TW|HK|KR|JP|ID|SG|ripao"
     type: select
-  - name: 所有节点
+  - name: 自定义节点
     include-all: true
     exclude-filter: "(?i)http|socks|socks5|sock"
     type: select
-  - name: 原始所有节点
+  - name: 所有节点
     include-all: true
     type: select
 

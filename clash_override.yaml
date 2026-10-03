@@ -1,11 +1,89 @@
-# Profile Enhancement Merge Template for Clash Verge Rev (Mihomo Core)
+# ---- 连接性能 ----
+tcp-concurrent: true
+unified-delay: true
+keep-alive-interval: 30
+buffer-size: 8192
+max-connections: 1024
 
 profile:
   store-selected: true
-
-# ==============================================================================
+  store-fake-ip: true
+  tracing: false
+tun:
+  stack: mixed
+  device: bcm4210
+  mtu: 1500
+  enable: true
+  auto-route: true
+  auto-detect-interface: true
+  strict-route: true
+  dns-hijack:
+    - any:53
+  route-exclude-address: []
+  route-address-set:
+    - 198.18.0.0/16
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - '+.local'
+    - 'ntp.*'
+    - 'time.*'
+  use-hosts: true
+  prefer-h3: true
+  ipv6: false
+  cache-size: 4096
+  default-nameserver:
+    - tls://223.5.5.5
+    - tls://1.12.12.12
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+    - https://dns.cloudflare.com/dns-query
+    - tls://8.8.8.8
+    - tls://dns.quad9.net
+  proxy-server-nameserver:
+    - tls://8.8.8.8
+    - tls://1.1.1.1
+  nameserver-policy:
+    # 国内域名 → 国内 DNS
+    "geosite:cn,private":
+      - tls://223.5.5.5
+      - tls://119.29.29.29
+      - https://dns.alidns.com/dns-query
+    # 非中国域名 → 加密 DNS
+    "geosite:geolocation-!cn":
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+      - https://dns.cloudflare.com/dns-query
+      - tls://dns.quad9.net
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  # force-domain:
+  #   - +.v2ex.com
+  skip-domain: ['+.local', 'ntp.*']
+    # - Mijia Cloud
+  skip-src-address:
+    - 192.168.0.3/32
+  skip-dst-address:
+    - 192.168.0.3/32
 # 1. 代理组定义
-# ==============================================================================
 proxy-groups:
   - name: 代理
     type: select
@@ -28,12 +106,9 @@ proxy-groups:
   - name: 所有节点
     include-all: true
     type: select
-
-# ==============================================================================
 # 2. 规则集定义 (Rule Providers)
 # 说明：个人 .list 文件显式加上 format: text，避免 must have payload 报错
 # 官方标准规则直接使用 mrs 二进制格式，实现毫秒级加载
-# ==============================================================================
 rule-providers:
   # ---- 用户自定义个人规则库 ----
   MyReject:
@@ -73,36 +148,25 @@ rule-providers:
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta-rules-dat/geo/geosite/category-ai-chat-us.mrs
     path: ./rules/ai-services.mrs
     interval: 86400
-
-# ==============================================================================
 # 3. 完全分流规则列表 (Rules)
 # 从上至下严格按优先级进行匹配过滤
-# ==============================================================================
 rules:
-  # ========================================================
   # 第 1 层：绝对防御与本地/BT特化（最优先，免 DNS 延迟）
-  # ========================================================
   - GEOSITE,private,DIRECT
   - GEOIP,private,DIRECT,no-resolve
   # 利用新数据库的 tracker 标签：BT/PT 种子下载 Tracker 服务器强制直连（省流量/防吸血）
   - GEOSITE,tracker,DIRECT
 
-  # ========================================================
   # 第 2 层：广告、恶心追踪与拦截
-  # ========================================================
   - RULE-SET,MyReject,REJECT
   - RULE-SET,ads-all,REJECT
   - GEOSITE,category-ads-all,REJECT
 
-  # ========================================================
   # 第 3 层：用户最高意志（手动调试与临时修复）
-  # ========================================================
   - RULE-SET,MyProxy,代理
   - RULE-SET,MyDirect,DIRECT
 
-  # ========================================================
   # 第 4 层：高频/前沿专有服务分流 (AI、电报、流媒体、开发)
-  # ========================================================
   # ---- AI 人工智能服务 (OpenAI, Claude, Gemini, Midjourney 等) ----
   - RULE-SET,ai-services,代理
   - GEOSITE,openai,代理
@@ -121,9 +185,7 @@ rules:
   - GEOSITE,disney,代理
   - GEOSITE,biliintl,代理             # 利用新数据库：哔哩哔哩海外/国际版走代理
 
-  # ========================================================
   # 第 5 层：大厂 CDN 修正与国内外精细分割
-  # ========================================================
   # ---- 谷歌服务分割 ----
   - GEOSITE,google@cn,DIRECT          # 谷歌国内 CDN / 翻译 / 地图直连
   - GEOIP,google,代理,no-resolve      # 利用新数据库：谷歌海外 IP 走代理
@@ -148,9 +210,7 @@ rules:
   - GEOIP,bilibili,DIRECT,no-resolve  # 利用新数据库：Bilibili 视频流 IP 强制直连
   - GEOIP,cloudflare,代理,no-resolve  # 利用新数据库：Cloudflare 节点强制走代理（防止被墙连接超时）
 
-  # ========================================================
   # 第 6 层：全量 GFW 与国内白名单兜底
-  # ========================================================
   # ---- 优先匹配 GFW 明确被封锁的域名 ----
   - GEOSITE,gfw,代理
 
@@ -158,7 +218,5 @@ rules:
   - GEOSITE,cn,DIRECT                 # 利用新数据库：采用 ChinaMax_Domain 全量国内域名
   - GEOIP,CN,DIRECT,no-resolve        # 全量国内 IP 直连 (no-resolve 避免 DNS 泄露)
 
-  # ========================================================
   # 第 7 层：未命中流量兜底清算
-  # ========================================================
   - MATCH,代理                        # 剩余所有未知的冷门海外流量统一走代理

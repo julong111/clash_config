@@ -1,3 +1,38 @@
 # MyDirect
-DOMAIN-SUFFIX,test.com
+
+# dyrs1.vip
+DOMAIN-REGEX,(^|\.)dyrs\d+\.vip$
+
+# dyvip1.cc
+DOMAIN-REGEX,(^|\.)dyvip\d+\.cc$
+
+# dyrs1080.cc
+DOMAIN-REGEX,(^|\.)dyrs\d+\.cc$
+
+# viprs2.cc
+DOMAIN-REGEX,(^|\.)viprs\d+\.cc$
+
+# dyrs8.net
+DOMAIN-REGEX,(^|\.)dyrs\d+\.net$
+
+DOMAIN-SUFFIX,dyrsgo.cc
+DOMAIN-SUFFIX,dyrshd.cc
+DOMAIN-SUFFIX,dyrshd.com
+DOMAIN-SUFFIX,dyrsok.cc
+DOMAIN-SUFFIX,dyrsok.vip
+DOMAIN-SUFFIX,dyrsvip.cc
+DOMAIN-SUFFIX,dyrsvip.net
+
+
+DOMAIN-SUFFIX,gddyrs.cc
+DOMAIN-SUFFIX,godyrs.cc
+DOMAIN-SUFFIX,dyrs.com.de
 DOMAIN-SUFFIX,dyrsxm.cc
+DOMAIN-SUFFIX,dyrs.mov
+DOMAIN-SUFFIX,dyrs.me
+DOMAIN-SUFFIX,laifu8.com
+DOMAIN-SUFFIX,wztvyzz.com
+
+DOMAIN-SUFFIX,huahaiyy.com
+DOMAIN-SUFFIX,pianlai.cc
+DOMAIN-SUFFIX,lg1080.com

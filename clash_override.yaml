@@ -42,6 +42,10 @@ dns:
     - tls://223.5.5.5
     - tls://1.12.12.12
   nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
     - https://1.1.1.1/dns-query
     - https://8.8.8.8/dns-query
     - https://dns.cloudflare.com/dns-query
@@ -112,42 +116,27 @@ proxy-groups:
 rule-providers:
   # ---- 用户自定义个人规则库 ----
   MyReject:
-    type: http
+    type: file
     behavior: classical
     format: text
-    url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyReject.list
+    #url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyReject.list
     path: ./rules/MyReject.list
-    interval: 86400
+    #interval: 86400
   MyDirect:
-    type: http
+    type: file
     behavior: classical
     format: text
-    url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyDirect.list
+    #url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyDirect.list
     path: ./rules/MyDirect.list
-    interval: 86400
+    #interval: 86400
   MyProxy:
-    type: http
+    type: file
     behavior: classical
     format: text
-    url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyProxy.list
+    #url: https://raw.githubusercontent.com/julong111/clash_config/refs/heads/main/MyProxy.list
     path: ./rules/MyProxy.list
-    interval: 86400
+    #interval: 86400
 
-  # ---- MetaCubeX / 全量 MRS 顶级规则集 ----
-  ads-all:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta-rules-dat/geo/geosite/category-ads-all.mrs
-    path: ./rules/ads-all.mrs
-    interval: 86400
-  ai-services:
-    type: http
-    behavior: domain
-    format: mrs
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta-rules-dat/geo/geosite/category-ai-chat-us.mrs
-    path: ./rules/ai-services.mrs
-    interval: 86400
 # 3. 完全分流规则列表 (Rules)
 # 从上至下严格按优先级进行匹配过滤
 rules:
@@ -159,7 +148,7 @@ rules:
 
   # 第 2 层：广告、恶心追踪与拦截
   - RULE-SET,MyReject,REJECT
-  - RULE-SET,ads-all,REJECT
+  # - RULE-SET,ads-all,REJECT
   - GEOSITE,category-ads-all,REJECT
 
   # 第 3 层：用户最高意志（手动调试与临时修复）
@@ -168,7 +157,7 @@ rules:
 
   # 第 4 层：高频/前沿专有服务分流 (AI、电报、流媒体、开发)
   # ---- AI 人工智能服务 (OpenAI, Claude, Gemini, Midjourney 等) ----
-  - RULE-SET,ai-services,代理
+  # - RULE-SET,ai-services,代理
   - GEOSITE,openai,代理
 
   # ---- Telegram 电报 (域名 + 数据库专属 Telegram IP 段双重防漏) ----

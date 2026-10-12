@@ -27,45 +27,61 @@ tun:
     - 192.168.0.0/16
 dns:
   enable: true
+  ipv6: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
-    - '*.lan'
+    - '*'
+    - '+.lan'
     - '+.local'
-    - 'ntp.*'
-    - 'time.*'
+    - '+.localdomain'
+    - '+.msftconnecttest.com'
+    - '+.msftncsi.com'
+    - 'time.*.com'
+    - 'time.*.gov'
+    - 'time.*.edu.cn'
+    - 'time.*.apple.com'
+    - 'time1.cloud.tencent.com'
+    - 'ntp.*.com'
+    - '+.pool.ntp.org'
+    - 'time1.cloud.tencent.com'
+    - '+.ntp.org.cn'
+    - '+.time.edu.cn'
+    - '+.ntp.tencent.com'
+    - '+.ntp.aliyun.com'
+    - '+.ntp.ntp.ad.com'
+    - '+.market.xiaomi.com'
+    - '+.stun.*.*'
+    - '+.stun.*.*.*'
+    - 'WORKGROUP'
   use-hosts: true
-  prefer-h3: true
-  ipv6: false
+  prefer-h3: false          # H3 兼容性差，关闭更稳
   cache-size: 4096
+  respect-rules: true       # 让 DNS 出站遵循分流规则（关键）
+
+  # 仅用于解析 DoH/DoT 服务器自身域名，必须纯 IP、明文
   default-nameserver:
-    - tls://223.5.5.5
-    - tls://1.12.12.12
-  nameserver:
     - 223.5.5.5
     - 119.29.29.29
-    - https://doh.pub/dns-query
+
+  # 主解析列表：只留国内，国内域名走这里
+  nameserver:
     - https://dns.alidns.com/dns-query
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
-    - https://dns.cloudflare.com/dns-query
-    - tls://8.8.8.8
-    - tls://dns.quad9.net
+    - https://doh.pub/dns-query
+
+  # 解析"代理节点服务器域名"专用，必须国内可达
   proxy-server-nameserver:
-    - tls://8.8.8.8
-    - tls://1.1.1.1
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+
+  # 国外域名 → 通过代理走国外 DoH，避免污染
   nameserver-policy:
-    # 国内域名 → 国内 DNS
-    "geosite:cn,private":
-      - tls://223.5.5.5
-      - tls://119.29.29.29
+    'geosite:cn,private':
       - https://dns.alidns.com/dns-query
-    # 非中国域名 → 加密 DNS
-    "geosite:geolocation-!cn":
+      - https://doh.pub/dns-query
+    'geosite:geolocation-!cn':
       - https://1.1.1.1/dns-query
-      - https://8.8.8.8/dns-query
-      - https://dns.cloudflare.com/dns-query
-      - tls://dns.quad9.net
+      - https://dns.google/dns-query
 sniffer:
   enable: true
   force-dns-mapping: true
